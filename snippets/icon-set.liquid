@@ -1,0 +1,8 @@
+{% case icon %}
+    {% when 'doctor' %}
+    {% when 'coach' %}
+    {% when 'app' %}
+
+{% else %}
+   {{ icon | capitalize }}
+{% endcase %}

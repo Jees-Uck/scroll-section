@@ -1,0 +1,249 @@
+{{ 'section-scroll-blocks.css' | asset_url | stylesheet_tag }}
+<div class="section-scroll-blocks color-{{ section.settings.color_schema }}">
+    <div class="page-width section-{{ section.id }} section-scroll-blocks">
+        <div class="section-content">
+            {%- unless section.settings.title == blank -%}
+                <h2 class="section-title {{ section.settings.heading_size }}">
+                    {{ section.settings.title | escape }}
+                </h2>
+            {%- endunless -%}
+            {%- unless section.settings.description == blank -%}
+                <div class="section-description">
+                    {{ section.settings.description }}
+                </div>
+            {%- endunless -%}
+            <div id="buttons-{{ section.id }}" class="nav-buttons-group">
+                {%- for block in section.blocks -%}
+                    <button id="btn-{{ section.id }}-{{ forloop.index }}" class="button-chip {{ block.settings.color_schema }}">
+                        {% assign icon = block.settings.nav-icon | strip | prepend: 'icon-' | append: '.svg' | downcase %}
+                        <img src="{{ icon | asset_url }}" alt="{{ block.settings.nav-title }}" width="28" height="28" />
+                        <span>{{ block.settings.nav-title }}</span>
+                    </button>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="section-blocks">
+            <div class="blocks-wrapper">
+                <svg id="slider-image" class="" width="720" height="834" viewBox="0 0 720 834" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M -0.698 76.059 L 1.236 -455.6 L 719.712 -455.6 L 719.912 373.891 C 720.015 424.305 690.962 470.173 645.365 491.584 L 508.719 555.749 C 475.702 571.252 472.464 616.956 502.958 637.087 L 676.367 751.574 C 704.076 769.868 720.786 800.827 720.854 834 L 720.541 1344.4 L 1.236 1344.4 L 0.247 537.003 C 0.142 485.489 21.514 436.306 59.223 401.286 L 228.934 243.681 C 244.584 229.147 237.369 202.978 216.464 198.455 L 73.222 167.461 C 30.175 158.147 -0.608 120.084 -0.698 76.059 Z"/>
+                </svg>
+                <svg id="slider-image-mobile" width="375" height="508" viewBox="0 0 375 508" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M 356.4 0.001 L 375 0.001 L 800 0 L 800 508.818 L 375 508 L 246.203 508 C 199.961 508 158.316 480.02 140.839 437.209 C 127.963 405.671 84.447 402.74 67.459 432.267 L 35.801 487.294 C 28.431 500.104 14.779 508 0 508 L -400 512.167 L -400 0 L 0 0.001 L 145.362 0.001 C 161.334 0.001 176.941 4.782 190.172 13.728 L 256.143 58.334 C 268.653 66.792 285.782 61.081 290.712 46.807 C 300.388 18.795 326.764 0 356.4 0.001 Z" fill=""/>
+                </svg>
+                <div class="slider-wrapper" id="slider-{{ section.id }}">
+                    <div id="slider-track" class="slider-track">
+                        {%- for block in section.blocks -%}
+                            <div id="slide-{{ section.id }}-{{ forloop.index }}"
+                                 class="scroll-blocks-list__item" {{ block.shopify_attributes }}
+                                 data-color="{{ block.settings.color_schema }}">
+                                <div class="scroll-blocks-card content-container">
+                                    <div class="scroll-blocks-card__info">
+                                        {%- if block.settings.title != blank -%}
+                                            <div class="scroll-blocks-card__heading">
+                                                {% if block.settings.block-icon != blank  %}
+                                                    {% assign block_icon = block.settings.block-icon | prepend: "icon-" | append: ".svg" %}
+                                                    <img src="{{ block_icon | asset_url }}" alt="{{ block.settings.title }}">
+                                                {% endif %}
+                                                <h4 class="scroll-blocks-card__title">{{ block.settings.title | escape }}</h4>
+                                            </div>
+                                        {%- endif -%}
+                                        {%- if block.settings.description != blank -%}
+                                            <div class="scroll-blocks-card__description">{{ block.settings.description }}</div>
+                                        {%- endif -%}
+                                        {%- if block.settings.text != blank -%}
+                                            <div class="scroll-blocks-card__check-text {{ block.settings.color_schema }}">{{ block.settings.text }}</div>
+                                        {%- endif -%}
+                                        {%- if block.settings.link_label != blank -%}
+                                            <a class="scroll-blocks-card__cta"
+                                               {% if block.settings.link == blank %}role="link"
+                                               aria-disabled="true"
+                                               {% else %}href="{{ block.settings.link }}"{% endif %}>{{ block.settings.link_label | escape }}
+                                            </a>
+                                        {%- endif -%}
+                                        {%- if block.settings.text_price != blank -%}
+                                            <p class="scroll-blocks-card__price">{{ block.settings.text_price }}</p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        {%- endfor -%}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<style>
+    .scroll-blocks-card__check-text p:after {
+        -webkit-mask-image: url('{{ "icon-checkmark.svg" | asset_url }}');
+        mask-image: url('{{ "icon-checkmark.svg" | asset_url }}');
+    }
+</style>
+<script>
+    (function () {
+        const sectionBlocks = document.querySelector('.section-blocks')
+        const track = document.getElementById('slider-track')
+        const background = document.getElementById('slider-image')
+        const backgroundMobile = document.getElementById('slider-image-mobile')
+        const buttons = document.getElementById('buttons-{{ section.id }}')
+
+        buttons.firstElementChild.classList.add('active')
+        track.firstElementChild.classList.add('active')
+        background.setAttribute('class', track.firstElementChild.dataset.color)
+        backgroundMobile.setAttribute('class', track.firstElementChild.dataset.color)
+
+        Array.from(buttons.children).forEach((button) => {
+            button.addEventListener('click', () => {
+                let currentBtn = buttons.querySelector('.active')
+                let currentBlock = document.getElementById(currentBtn.id.replace('btn', 'slide'))
+                let nextBlockId = button.id.replace('btn', 'slide')
+                switchActiveElements(currentBlock, nextBlockId)
+            })
+        })
+
+        function switchActiveElements (currentBlock, nextID) {
+            if (sectionBlocks.querySelector('.transparent')) {
+                sectionBlocks.querySelector('.transparent').classList.remove('transparent')
+            }
+            buttons.querySelector('.active').classList.remove('active')
+            let nextBlock = document.getElementById(nextID)
+            if (nextBlock.previousElementSibling) {
+                nextBlock.previousElementSibling.classList.add('transparent')
+            }
+            background.setAttribute('class', nextBlock.dataset.color)
+            backgroundMobile.setAttribute('class', nextBlock.dataset.color)
+            currentBlock.classList.remove('active')
+            nextBlock.classList.add('active')
+            track.style.transform = `translateY(-${nextBlock.offsetTop}px)`
+            document.getElementById(nextID.replace('slide', 'btn')).classList.add('active')
+        }
+
+        sectionBlocks.onwheel = (event) => {
+            event.preventDefault()
+            let activeBlock = track.querySelector('.active')
+            if (event.deltaY > 0 && activeBlock.nextElementSibling !== null) {
+                let nextID = activeBlock.nextElementSibling.id
+                switchActiveElements(activeBlock, nextID)
+            } else if (event.deltaY < 0 && activeBlock.previousElementSibling !== null) {
+                let nextID = activeBlock.previousElementSibling.id
+                switchActiveElements(activeBlock, nextID)
+            }
+        }
+    })();
+</script>
+{% schema %}
+{
+  "name": "Scroll blocks",
+  "class": "section",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "default": "Title",
+      "label": "Title"
+    },
+    {
+      "type": "richtext",
+      "id": "description",
+      "default": "<p>Description</p>",
+      "label": "Section Description"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "column",
+      "name": "Block content",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "default": "Column",
+          "label": "Block title"
+        },
+        {
+          "type": "richtext",
+          "id": "text",
+          "default": "<p>Pair text with an image to focus on your chosen product, collection, or blog post. Add details on availability, style, or even provide a review.</p>",
+          "label": "Text with checkmarks"
+        },
+        {
+          "type": "text",
+          "id": "link_label",
+          "default": "Continue",
+          "label": "Button label"
+        },
+        {
+          "type": "text",
+          "id": "block-icon",
+          "label": "Block icon"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link"
+        },
+        {
+          "type": "text",
+          "id": "text_price",
+          "default": "Starting at 99/month",
+          "label": "Price text"
+        },
+        {
+          "type": "select",
+          "id": "color_schema",
+          "options": [
+            {
+              "value": "dark-blue",
+              "label": "Dark blue"
+            },
+            {
+              "value": "blue",
+              "label": "Blue"
+            },
+            {
+              "value": "sage",
+              "label": "Sage"
+            },
+            {
+              "value": "laguna-yellow",
+              "label": "Laguna yellow"
+            },
+            {
+              "value": "indian-red",
+              "label": "Indian-red"
+            }
+          ],
+          "default": "dark-blue",
+          "label": "t:sections.all.colors.label"
+        },
+        {
+          "type": "text",
+          "id": "nav-title",
+          "default": "Nav button title",
+          "label": "Navigation title"
+        },
+        {
+          "type": "text",
+          "id": "nav-icon",
+          "default": "doctor",
+          "label": "Nav button icon"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Scroll Blocks",
+      "blocks": [
+        {
+          "type": "column"
+        },
+        {
+          "type": "column"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
